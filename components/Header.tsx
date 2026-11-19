@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { Ellipsis, Moon, Sun, X } from "lucide-react";
-import { site } from "@/lib/data";
+import { asset, site } from "@/lib/data";
 import { GitHubLogo, LinkedInLogo, Pieces, WaveIcon } from "./Wave";
 
 const primary = [
@@ -12,6 +12,7 @@ const primary = [
 const secondary = [
   { label: "Skills", href: "#skills" },
   { label: "Experience", href: "#experience" },
+  { label: "CV", href: asset(site.cv), external: true },
   { label: "GitHub", href: site.github, external: true },
 ];
 
@@ -83,7 +84,8 @@ export default function Header() {
                 const s = n; n += l.label.length;
                 return (
                   <a key={l.href} href={l.href} onClick={l.external ? undefined : close}
-                    {...(l.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
+                    {...(l.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                    {...(l.label === "CV" ? { "data-goatcounter-click": "cv-download", "data-goatcounter-title": "CV download (menu)" } : {})}>
                     <Pieces text={l.label} start={s} />
                   </a>
                 );

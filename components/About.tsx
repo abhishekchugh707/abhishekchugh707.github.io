@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Download } from "lucide-react";
 import { asset, bio, heroCode, site } from "@/lib/data";
 import { WaveText } from "./Wave";
 
@@ -277,8 +277,8 @@ export default function About() {
             <a className="bio-projects wave-target" href="#projects">
               <WaveText>Explore projects</WaveText><ArrowUpRight size={20} aria-hidden="true" />
             </a>
-            <a className="bio-cv wave-target" href={`mailto:${site.email}`}>
-              <WaveText>Email me</WaveText><ArrowUpRight size={20} aria-hidden="true" />
+            <a className="bio-cv wave-target" href={asset(site.cv)} target="_blank" rel="noopener noreferrer" data-goatcounter-click="cv-download" data-goatcounter-title="CV download (bio button)">
+              <WaveText>Download CV</WaveText><Download size={20} aria-hidden="true" />
             </a>
           </div>
         </div>

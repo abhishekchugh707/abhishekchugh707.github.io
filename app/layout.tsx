@@ -18,9 +18,10 @@ export const metadata: Metadata = {
   openGraph: {
     title: `${site.fullName} | ${site.role}`,
     description: site.description,
-    images: [asset("/me.jpg")],
+    images: [{ url: asset("/og-image.png"), width: 1200, height: 630, alt: "Abhishek Chugh, Software Developer" }],
     type: "website",
   },
+  twitter: { card: "summary_large_image", images: [asset("/og-image.png")] },
 };
 
 export const viewport: Viewport = {
@@ -40,6 +41,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" data-theme="dark" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        {/* Visitor stats (GoatCounter): cookie-free, no personal data. Dashboard: abhishekchugh.goatcounter.com */}
+        {process.env.NEXT_PUBLIC_ANALYTICS !== "off" && (
+          <script data-goatcounter="https://abhishekchugh.goatcounter.com/count" async src="https://gc.zgo.at/count.js" />
+        )}
       </head>
       <body>{children}</body>
     </html>

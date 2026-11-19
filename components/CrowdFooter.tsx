@@ -193,8 +193,13 @@ export default function CrowdFooter() {
       draw();
       start();
     };
-    img.onerror = () => { console.warn("[crowd footer] could not load crowd.png"); setCanvasOk(false); };
-    img.src = asset("/footer/crowd.png");
+    img.onerror = () => { console.warn("[crowd footer] could not load crowd.webp"); setCanvasOk(false); };
+    // Fetch the crowd only once the visitor is within ~2 screens of the footer,
+    // so it never competes with the top of the page but is ready on arrival.
+    const pre = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { img.src = asset("/footer/crowd.webp"); pre.disconnect(); }
+    }, { rootMargin: "200% 0px" });
+    pre.observe(el);
 
     const ro = new ResizeObserver(() => resize());
     ro.observe(el);
@@ -204,7 +209,7 @@ export default function CrowdFooter() {
     document.addEventListener("visibilitychange", vis);
     document.fonts?.ready.then(fitName);
     return () => {
-      alive = false; cancelAnimationFrame(raf); ro.disconnect(); io.disconnect();
+      alive = false; cancelAnimationFrame(raf); ro.disconnect(); io.disconnect(); pre.disconnect();
       document.removeEventListener("visibilitychange", vis);
     };
   }, []);
@@ -218,7 +223,7 @@ export default function CrowdFooter() {
 
   const links = [
     ["About", "#about"], ["Skills", "#skills"], ["Projects", "#projects"],
-    ["Experience", "#experience"], ["Contact", "#contact"], ["GitHub", site.github],
+    ["Experience", "#experience"], ["Contact", "#contact"], ["CV", asset(site.cv)], ["GitHub", site.github],
   ];
 
   return (
@@ -232,7 +237,8 @@ export default function CrowdFooter() {
           <p>Explore</p>
           <div>
             {links.map(([l, h]) => (
-              <a key={l} className="wave-target" href={h} {...(h.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
+              <a key={l} className="wave-target" href={h} {...(!h.startsWith("#") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                {...(l === "CV" ? { "data-goatcounter-click": "cv-download", "data-goatcounter-title": "CV download (footer)" } : {})}>
                 <WaveText>{l}</WaveText>
               </a>
             ))}
@@ -257,7 +263,7 @@ export default function CrowdFooter() {
           onClick={() => setPaused((p) => !p)}>
           <span className="footer-crowd-name" ref={nameEl} aria-hidden="true">{name}</span>
           {canvasOk && <canvas className="footer-crowd-layer footer-crowd-back" ref={back} aria-hidden="true" />}
-          <img className="footer-crowd-portrait" ref={portrait} src={asset("/footer/character.png")} alt="" loading="lazy" />
+          <img className="footer-crowd-portrait" ref={portrait} src={asset("/footer/character.webp")} alt="" loading="lazy" />
           {canvasOk && <canvas className="footer-crowd-layer footer-crowd-front" ref={front} aria-hidden="true" />}
           <span className="footer-crowd-paused" aria-hidden="true">Paused</span>
         </button>

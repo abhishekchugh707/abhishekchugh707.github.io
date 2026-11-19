@@ -16,6 +16,7 @@ export const site = {
   linkedin: "https://www.linkedin.com/in/abhishekchugh707",
   // Web3Forms access key: public by design, it only lets the form send to this inbox.
   formKey: "a544eeef-d9cc-491c-86b8-3c8fa2057db2",
+  cv: "/Abhishek_Chugh_CV.pdf",
   description:
     "Abhishek Chugh, software developer in Germany. Backends, data and ML pipelines, and the CI/CD that ships them.",
 };

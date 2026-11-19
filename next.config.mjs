@@ -5,5 +5,9 @@ export default {
   basePath,
   trailingSlash: true,
   images: { unoptimized: true },
-  env: { NEXT_PUBLIC_BASE_PATH: basePath, NEXT_PUBLIC_ASSET_BASE: process.env.ASSET_BASE ?? basePath },
+  env: {
+    NEXT_PUBLIC_BASE_PATH: basePath,
+    NEXT_PUBLIC_ASSET_BASE: process.env.ASSET_BASE ?? basePath,
+    NEXT_PUBLIC_ANALYTICS: process.env.ANALYTICS ?? "on",
+  },
 };
