@@ -375,7 +375,7 @@ p { text-wrap: pretty; }
 .footer-crowd-name { position: absolute; top: 0; left: 0; width: 100%; text-align: center; font-size: clamp(100px, 22.7vw, 370px); font-weight: 800; line-height: 1; letter-spacing: -.04em; white-space: nowrap; color: #ececec; user-select: none; }
 .footer-crowd-layer { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .footer-crowd-back { z-index: 1; }
-.footer-crowd-portrait { position: absolute; bottom: 12px; left: 50%; z-index: 2; width: auto; max-width: none; height: min(365px, 100% - 24px); object-fit: contain; pointer-events: none; transform: translateX(-50%); }
+.footer-crowd-portrait { position: absolute; bottom: 12px; left: 50%; z-index: 2; width: auto; max-width: none; height: min(445px, 100% - 24px); object-fit: contain; pointer-events: none; transform: translateX(-50%); }
 .footer-crowd-front { z-index: 3; }
 .footer-crowd-paused { position: absolute; top: 14px; right: 14px; z-index: 4; padding: 4px 9px; font-size: 11px; font-weight: 600; color: #fff; background: #141414; border-radius: 4px; opacity: 0; transition: opacity .2s; }
 .footer-crowd-scene[aria-pressed="true"] .footer-crowd-paused { opacity: 1; }
@@ -486,7 +486,7 @@ p { text-wrap: pretty; }
   .footer-finale-heading > a { gap: 7px; font-size: 11px; }
   .footer-crowd-scene { min-height: clamp(320px, 48svh, 420px); touch-action: pan-y pinch-zoom; }
   .footer-crowd-name { top: 7px; }
-  .footer-crowd-portrait { height: min(clamp(220px, 30svh, 260px), 100% - 24px); }
+  .footer-crowd-portrait { height: min(clamp(260px, 36svh, 315px), 100% - 24px); }
   .footer-scene-bottom { min-height: 84px; padding-bottom: 40px; }
 }
 @media (max-height: 620px) {

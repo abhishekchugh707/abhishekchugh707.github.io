@@ -16,7 +16,7 @@ const secondary = [
 ];
 
 export default function Header() {
-  const [dark, setDark] = useState(false);
+  const [dark, setDark] = useState(true);
   const dialog = useRef<HTMLDialogElement>(null);
   const word = useRef<HTMLSpanElement>(null);
 

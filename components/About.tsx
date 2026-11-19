@@ -14,8 +14,12 @@ function CodeBackground() {
   useEffect(() => {
     const el = host.current!, cv = canvas.current!, ctx = cv.getContext("2d")!;
     const lines = heroCode.split("\n");
+    const maxLen = Math.max(...lines.map((l) => l.length));
     const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
     let w = 0, h = 0, fs = 12, lh = 20, cw = 7, raf = 0, visible = true, last = 0;
+    // pointer spotlight: eased toward the mouse, fades out when it leaves
+    let mx = -9999, my = -9999, tx = -9999, ty = -9999, glow = 0, glowTarget = 0;
+    const R = 170;
     const resize = () => {
       const dpr = Math.min(devicePixelRatio || 1, 2);
       w = el.clientWidth; h = el.clientHeight;
@@ -30,35 +34,67 @@ function CodeBackground() {
       const ink = getComputedStyle(document.documentElement).getPropertyValue("--ink").trim() || "#141414";
       ctx.fillStyle = ink;
       const rows = Math.ceil(h / lh) + 1;
+      // Fill the full width: lay the code out in side-by-side columns,
+      // each column starting further down the file so they don't repeat side by side.
+      const colW = (maxLen + 6) * cw;
+      const cols = Math.ceil((w - 20) / colW) + 1;
       for (let r = 0; r < rows; r++) {
-        const line = lines[r % lines.length];
         const y = 16 + r * lh;
-        for (let c = 0; c < line.length; c++) {
-          const ch = line[c];
-          if (ch === " ") continue;
-          const x = 20 + c * cw;
-          if (x > w) break;
-          const wave = Math.sin(x * 0.006 + y * 0.004 - t * 0.0006) * Math.sin(y * 0.011 - t * 0.0004 + x * 0.002);
-          ctx.globalAlpha = 0.035 + Math.max(0, wave) * 0.13;
-          ctx.fillText(ch, x, y);
+        for (let col = 0; col < cols; col++) {
+          const line = lines[(r + col * 23) % lines.length];
+          const x0 = 20 + col * colW;
+          for (let c = 0; c < line.length; c++) {
+            const ch = line[c];
+            if (ch === " ") continue;
+            const x = x0 + c * cw;
+            if (x > w) break;
+            const wave = Math.sin(x * 0.006 + y * 0.004 - t * 0.0006) * Math.sin(y * 0.011 - t * 0.0004 + x * 0.002);
+            let a = 0.035 + Math.max(0, wave) * 0.13, dx = 0, dy = 0;
+            if (glow > 0.01) {
+              const ddx = x - mx, ddy = y - my, d = Math.hypot(ddx, ddy);
+              if (d < R) {
+                const k = (1 - d / R) * glow;
+                const f = k * k;
+                a += f * 0.75;
+                const ring = Math.sin(d * 0.08 - t * 0.008) * 2.2 * f;
+                dx = (ddx / (d || 1)) * ring; dy = (ddy / (d || 1)) * ring;
+              }
+            }
+            ctx.globalAlpha = Math.min(1, a);
+            ctx.fillText(ch, x + dx, y + dy);
+          }
         }
       }
       ctx.globalAlpha = 1;
     };
     const loop = (t: number) => {
-      if (visible && !document.hidden && t - last > 40) { draw(t); last = t; }
+      mx += (tx - mx) * 0.18; my += (ty - my) * 0.18;
+      glow += (glowTarget - glow) * 0.08;
+      const fast = glow > 0.01;
+      if (visible && !document.hidden && t - last > (fast ? 16 : 40)) { draw(t); last = t; }
       raf = requestAnimationFrame(loop);
     };
     resize();
     const start = () => (reduce ? draw(0) : (raf = requestAnimationFrame(loop)));
     document.fonts?.ready.then(() => { resize(); start(); }) ?? start();
+    const hero = el.parentElement!;
+    const onMove = (e: PointerEvent) => {
+      if (e.pointerType !== "mouse" || reduce) return;
+      const r = el.getBoundingClientRect();
+      tx = e.clientX - r.left; ty = e.clientY - r.top;
+      if (glowTarget === 0) { mx = tx; my = ty; }
+      glowTarget = 1;
+    };
+    const onLeave = () => { glowTarget = 0; };
+    hero.addEventListener("pointermove", onMove);
+    hero.addEventListener("pointerleave", onLeave);
     const ro = new ResizeObserver(() => { resize(); draw(performance.now()); });
     ro.observe(el);
     const io = new IntersectionObserver(([e]) => (visible = e.isIntersecting));
     io.observe(el);
     const themeObs = new MutationObserver(() => draw(performance.now()));
     themeObs.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
-    return () => { cancelAnimationFrame(raf); ro.disconnect(); io.disconnect(); themeObs.disconnect(); };
+    return () => { cancelAnimationFrame(raf); ro.disconnect(); io.disconnect(); themeObs.disconnect(); hero.removeEventListener("pointermove", onMove); hero.removeEventListener("pointerleave", onLeave); };
   }, []);
   return (
     <div className="hero-code-background" ref={host} aria-hidden="true">

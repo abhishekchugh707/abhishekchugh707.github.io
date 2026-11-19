@@ -115,7 +115,7 @@ export default function CrowdFooter() {
       const ids = cast(nBack + nFront, rand);
       walkers = ids.map((sprite, i) => {
         const isBack = i < nBack;
-        const h = charH * (isBack ? 0.58 + rand() * 0.08 : 0.8 + rand() * 0.1);
+        const h = charH * (isBack ? 0.46 + rand() * 0.05 : 0.6 + rand() * 0.07);
         return {
           sprite,
           // a few rear walkers are painted on the front canvas so they overlap you too
@@ -127,7 +127,7 @@ export default function CrowdFooter() {
           bob: rand() * 10,
           x0: rand() * Math.PI * 2,
           // back row: head offset from the character's head line; front row: share hidden below the frame
-          sink: isBack ? -0.04 + rand() * 0.1 : 0.2 + rand() * 0.08,
+          sink: isBack ? -0.04 + rand() * 0.1 : -0.04 + rand() * 0.08,
         } as Walker;
       }).sort((a, b) => (a.dir === b.dir ? a.h - b.h : a.dir === 1 ? -1 : 1));
     };
