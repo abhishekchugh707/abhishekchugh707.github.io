@@ -18,33 +18,9 @@ const secondary = [
 export default function Header() {
   const [dark, setDark] = useState(true);
   const dialog = useRef<HTMLDialogElement>(null);
-  const word = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     setDark(document.documentElement.dataset.theme === "dark");
-  }, []);
-
-  // The wordmark spins with scroll speed, then settles upright.
-  useEffect(() => {
-    const el = word.current;
-    if (!el || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    let angle = 0, vel = 0, lastY = scrollY, raf = 0, running = false;
-    const step = () => {
-      const target = Math.round(angle / 360) * 360;
-      vel += (target - angle) * 0.02;
-      vel *= 0.86;
-      angle += vel;
-      el.style.transform = `rotate(${angle.toFixed(2)}deg)`;
-      if (Math.abs(vel) > 0.02 || Math.abs(target - angle) > 0.1) raf = requestAnimationFrame(step);
-      else { angle = target % 360; el.style.transform = "rotate(0deg)"; running = false; }
-    };
-    const onScroll = () => {
-      const dy = scrollY - lastY; lastY = scrollY;
-      vel += Math.max(-24, Math.min(24, dy * 0.12));
-      if (!running) { running = true; raf = requestAnimationFrame(step); }
-    };
-    addEventListener("scroll", onScroll, { passive: true });
-    return () => { removeEventListener("scroll", onScroll); cancelAnimationFrame(raf); };
   }, []);
 
   const toggleTheme = () => {
@@ -70,7 +46,7 @@ export default function Header() {
       <header className="site-header">
         <div className="header-inner">
           <a className="wordmark" href="#about" aria-label={`${site.fullName}, home`}>
-            <span className="wordmark-text" ref={word}>{site.firstName}</span>
+            <span className="wordmark-text">{site.firstName}</span>
           </a>
           <div className="header-actions">
             <button className="icon-button theme-toggle wave-target" onClick={toggleTheme}
