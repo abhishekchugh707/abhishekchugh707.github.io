@@ -7,7 +7,14 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://abhishekchugh707.github.io"),
   title: `${site.fullName} | ${site.role}`,
   description: site.description,
-  icons: { icon: asset("/icon.svg"), apple: asset("/apple-icon.png") },
+  icons: {
+    icon: [
+      { url: asset("/favicon.ico"), sizes: "any" },
+      { url: asset("/icon-32.png"), type: "image/png", sizes: "32x32" },
+      { url: asset("/icon-512.png"), type: "image/png", sizes: "512x512" },
+    ],
+    apple: asset("/apple-icon.png"),
+  },
   openGraph: {
     title: `${site.fullName} | ${site.role}`,
     description: site.description,

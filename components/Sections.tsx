@@ -318,15 +318,30 @@ export function Experience() {
 /* ---------- Contact ---------- */
 export function Contact() {
   const [copied, setCopied] = useState(false);
+  const [draft, setDraft] = useState<{ subject: string; body: string } | null>(null);
+  const [draftCopied, setDraftCopied] = useState(false);
   const copy = async () => {
     try { await navigator.clipboard.writeText(site.email); setCopied(true); setTimeout(() => setCopied(false), 2000); } catch {}
   };
+  const mailto = (d: { subject: string; body: string }) =>
+    `mailto:${site.email}?subject=${encodeURIComponent(d.subject)}&body=${encodeURIComponent(d.body)}`;
+  const gmail = (d: { subject: string; body: string }) =>
+    `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(site.email)}&su=${encodeURIComponent(d.subject)}&body=${encodeURIComponent(d.body)}`;
   const submit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
-    const subject = `Hello from ${f.get("name")}`;
-    const body = `${f.get("message")}\n\n${f.get("name")}\n${f.get("email")}`;
-    location.href = `mailto:${site.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const d = {
+      subject: `Hello from ${f.get("name")}`,
+      body: `${f.get("message")}\n\n${f.get("name")}\n${f.get("email")}`,
+    };
+    setDraft(d);
+    setDraftCopied(false);
+    // Try the visitor's email app straight away; the box below covers the cases where nothing opens.
+    try { window.location.href = mailto(d); } catch {}
+  };
+  const copyDraft = async () => {
+    if (!draft) return;
+    try { await navigator.clipboard.writeText(`To: ${site.email}\nSubject: ${draft.subject}\n\n${draft.body}`); setDraftCopied(true); } catch {}
   };
   return (
     <section id="contact" className="contact-section">
@@ -369,6 +384,22 @@ export function Contact() {
                 <WaveText>Create email draft</WaveText><ArrowUpRight size={22} aria-hidden="true" />
               </button>
             </div>
+            {draft && (
+              <div className="draft-ready" role="status">
+                <p>Your draft is ready. Send it from:</p>
+                <div className="draft-actions">
+                  <a className="draft-link wave-target" href={gmail(draft)} target="_blank" rel="noopener noreferrer">
+                    <WaveText>Open in Gmail</WaveText><ArrowUpRight size={16} aria-hidden="true" />
+                  </a>
+                  <a className="draft-link wave-target" href={mailto(draft)}>
+                    <WaveText>Open email app</WaveText><ArrowUpRight size={16} aria-hidden="true" />
+                  </a>
+                  <button type="button" className="draft-link wave-target" onClick={copyDraft}>
+                    <WaveText>{draftCopied ? "Copied" : "Copy message"}</WaveText>{draftCopied ? <Check size={16} aria-hidden="true" /> : <Copy size={16} aria-hidden="true" />}
+                  </button>
+                </div>
+              </div>
+            )}
           </form>
         </div>
       </div>
