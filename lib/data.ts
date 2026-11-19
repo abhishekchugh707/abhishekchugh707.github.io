@@ -14,6 +14,8 @@ export const site = {
   email: "abhishekchugh707@gmail.com",
   github: "https://github.com/abhishekchugh707",
   linkedin: "https://www.linkedin.com/in/abhishekchugh707",
+  // Web3Forms access key: public by design, it only lets the form send to this inbox.
+  formKey: "a544eeef-d9cc-491c-86b8-3c8fa2057db2",
   description:
     "Abhishek Chugh, software developer in Germany. Backends, data and ML pipelines, and the CI/CD that ships them.",
 };

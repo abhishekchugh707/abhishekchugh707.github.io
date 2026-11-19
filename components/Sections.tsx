@@ -318,30 +318,36 @@ export function Experience() {
 /* ---------- Contact ---------- */
 export function Contact() {
   const [copied, setCopied] = useState(false);
-  const [draft, setDraft] = useState<{ subject: string; body: string } | null>(null);
-  const [draftCopied, setDraftCopied] = useState(false);
+  const [state, setState] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const copy = async () => {
     try { await navigator.clipboard.writeText(site.email); setCopied(true); setTimeout(() => setCopied(false), 2000); } catch {}
   };
-  const mailto = (d: { subject: string; body: string }) =>
-    `mailto:${site.email}?subject=${encodeURIComponent(d.subject)}&body=${encodeURIComponent(d.body)}`;
-  const gmail = (d: { subject: string; body: string }) =>
-    `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(site.email)}&su=${encodeURIComponent(d.subject)}&body=${encodeURIComponent(d.body)}`;
-  const submit = (e: React.FormEvent<HTMLFormElement>) => {
+  const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const f = new FormData(e.currentTarget);
-    const d = {
-      subject: `Hello from ${f.get("name")}`,
-      body: `${f.get("message")}\n\n${f.get("name")}\n${f.get("email")}`,
-    };
-    setDraft(d);
-    setDraftCopied(false);
-    // Try the visitor's email app straight away; the box below covers the cases where nothing opens.
-    try { window.location.href = mailto(d); } catch {}
-  };
-  const copyDraft = async () => {
-    if (!draft) return;
-    try { await navigator.clipboard.writeText(`To: ${site.email}\nSubject: ${draft.subject}\n\n${draft.body}`); setDraftCopied(true); } catch {}
+    const form = e.currentTarget;
+    const f = new FormData(form);
+    if (f.get("botcheck")) return;                 // filled only by spam bots
+    setState("sending");
+    try {
+      const res = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          access_key: site.formKey,
+          subject: `Portfolio: message from ${f.get("name")}`,
+          from_name: "Portfolio contact form",
+          name: f.get("name"),
+          email: f.get("email"),
+          replyto: f.get("email"),
+          message: f.get("message"),
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.success !== false) { setState("sent"); form.reset(); }
+      else setState("error");
+    } catch {
+      setState("error");
+    }
   };
   return (
     <section id="contact" className="contact-section">
@@ -379,27 +385,16 @@ export function Contact() {
               <label htmlFor="inq-msg">What do you have in mind?</label>
               <textarea id="inq-msg" name="message" rows={4} placeholder="A little about the role or project…" required />
             </div>
+            <input type="checkbox" name="botcheck" className="sr-only" tabIndex={-1} aria-hidden="true" />
             <div className="contact-submit">
-              <button className="draft-button wave-target" type="submit">
-                <WaveText>Create email draft</WaveText><ArrowUpRight size={22} aria-hidden="true" />
+              <button className="draft-button wave-target" type="submit" disabled={state === "sending"}>
+                <WaveText>{state === "sending" ? "Sending…" : "Send message"}</WaveText><ArrowUpRight size={22} aria-hidden="true" />
               </button>
+              <p className={`form-status form-status-${state}`} role="status" aria-live="polite">
+                {state === "sent" && <>Thanks, your message is on its way. I&apos;ll get back to you soon.</>}
+                {state === "error" && <>That didn&apos;t go through. Please email me at <a href={`mailto:${site.email}`}>{site.email}</a>.</>}
+              </p>
             </div>
-            {draft && (
-              <div className="draft-ready" role="status">
-                <p>Your draft is ready. Send it from:</p>
-                <div className="draft-actions">
-                  <a className="draft-link wave-target" href={gmail(draft)} target="_blank" rel="noopener noreferrer">
-                    <WaveText>Open in Gmail</WaveText><ArrowUpRight size={16} aria-hidden="true" />
-                  </a>
-                  <a className="draft-link wave-target" href={mailto(draft)}>
-                    <WaveText>Open email app</WaveText><ArrowUpRight size={16} aria-hidden="true" />
-                  </a>
-                  <button type="button" className="draft-link wave-target" onClick={copyDraft}>
-                    <WaveText>{draftCopied ? "Copied" : "Copy message"}</WaveText>{draftCopied ? <Check size={16} aria-hidden="true" /> : <Copy size={16} aria-hidden="true" />}
-                  </button>
-                </div>
-              </div>
-            )}
           </form>
         </div>
       </div>

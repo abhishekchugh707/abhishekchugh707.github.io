@@ -355,6 +355,10 @@ p { text-wrap: pretty; }
 .draft-ready p { margin-bottom: 8px; font-size: 15px; font-weight: 600; }
 .draft-actions { display: flex; flex-wrap: wrap; gap: 4px 24px; }
 .draft-link { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-size: 15px; text-decoration: underline; text-underline-offset: 5px; }
+.draft-button:disabled { opacity: .6; cursor: progress; }
+.form-status { flex: 1; min-width: 220px; font-size: 15px; font-weight: 500; line-height: 1.5; }
+.form-status-sent::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 10px; vertical-align: middle; border-radius: 50%; background: #2fa864; box-shadow: 0 0 0 4px #2fa86433; }
+.form-status-error a { text-decoration: underline; text-underline-offset: 4px; }
 .draft-button > svg { transition: transform .3s var(--ease); }
 .draft-button:is(:hover, :focus-visible) > svg { transform: translate(3px, -3px); }
 
